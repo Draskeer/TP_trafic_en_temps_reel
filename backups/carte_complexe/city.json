@@ -1,0 +1,1393 @@
+{
+ "bounds": {
+  "w": 10000,
+  "h": 10000
+ },
+ "units_per_kmh": 3.0,
+ "car_spacing": 110,
+ "river": {
+  "width": 700,
+  "points": [
+   [
+    5150,
+    10000
+   ],
+   [
+    4900,
+    8000
+   ],
+   [
+    5100,
+    6400
+   ],
+   [
+    4900,
+    4000
+   ],
+   [
+    5100,
+    2000
+   ],
+   [
+    4900,
+    0
+   ]
+  ]
+ },
+ "hill": {
+  "x": 7600,
+  "y": 4800,
+  "rx": 750,
+  "ry": 1250
+ },
+ "parks": [
+  [
+   700,
+   3300,
+   1400,
+   4700
+  ],
+  [
+   3400,
+   1500,
+   4100,
+   3100
+  ],
+  [
+   6800,
+   1500,
+   7500,
+   3100
+  ],
+  [
+   8600,
+   7900,
+   9300,
+   9100
+  ]
+ ],
+ "labels": [
+  {
+   "text": "Rive Ouest",
+   "x": 1950,
+   "y": 8500,
+   "bold": true
+  },
+  {
+   "text": "Rive Est",
+   "x": 8000,
+   "y": 8500,
+   "bold": true
+  },
+  {
+   "text": "Rue Principale",
+   "x": 2900,
+   "y": 6750
+  },
+  {
+   "text": "Rocade Ouest",
+   "x": 2000,
+   "y": 9650
+  },
+  {
+   "text": "Rocade Est",
+   "x": 8000,
+   "y": 9650
+  },
+  {
+   "text": "Tunnel",
+   "x": 7950,
+   "y": 4800
+  }
+ ],
+ "roundabouts": [
+  {
+   "x": 2442,
+   "y": 6391,
+   "r": 180,
+   "segments": [
+    "w22-ring0",
+    "w22-ring1",
+    "w22-ring2",
+    "w22-ring3"
+   ]
+  },
+  {
+   "x": 2479,
+   "y": 3247,
+   "r": 180,
+   "segments": [
+    "w24-ring0",
+    "w24-ring1",
+    "w24-ring2",
+    "w24-ring3"
+   ]
+  },
+  {
+   "x": 1551,
+   "y": 7847,
+   "r": 180,
+   "segments": [
+    "w11-ring0",
+    "w11-ring1",
+    "w11-ring2"
+   ]
+  },
+  {
+   "x": 8534,
+   "y": 6451,
+   "r": 180,
+   "segments": [
+    "e32-ring0",
+    "e32-ring1",
+    "e32-ring2",
+    "e32-ring3"
+   ]
+  },
+  {
+   "x": 6617,
+   "y": 3192,
+   "r": 180,
+   "segments": [
+    "e14-ring0",
+    "e14-ring1",
+    "e14-ring2"
+   ]
+  },
+  {
+   "x": 9293,
+   "y": 7794,
+   "r": 180,
+   "segments": [
+    "e41-ring0",
+    "e41-ring1",
+    "e41-ring2"
+   ]
+  }
+ ],
+ "nodes": {
+  "w00": [
+   605,
+   9233
+  ],
+  "w01": [
+   709,
+   7889
+  ],
+  "w02": [
+   609,
+   6405
+  ],
+  "w03": [
+   620,
+   4908
+  ],
+  "w04": [
+   640,
+   3138
+  ],
+  "w05": [
+   537,
+   1495
+  ],
+  "w10": [
+   1521,
+   9211
+  ],
+  "w12": [
+   1593,
+   6337
+  ],
+  "w13": [
+   1414,
+   4804
+  ],
+  "w14": [
+   1467,
+   3126
+  ],
+  "w15": [
+   1413,
+   1427
+  ],
+  "w20": [
+   2497,
+   9267
+  ],
+  "w21": [
+   2452,
+   7700
+  ],
+  "w23": [
+   2405,
+   4857
+  ],
+  "w25": [
+   2456,
+   1330
+  ],
+  "w30": [
+   3349,
+   9093
+  ],
+  "w31": [
+   3402,
+   7825
+  ],
+  "w32": [
+   3206,
+   6305
+  ],
+  "w33": [
+   3199,
+   4738
+  ],
+  "w34": [
+   3251,
+   3243
+  ],
+  "w35": [
+   3197,
+   1489
+  ],
+  "w40": [
+   4208,
+   9173
+  ],
+  "w41": [
+   4202,
+   7841
+  ],
+  "w42": [
+   4305,
+   6340
+  ],
+  "w43": [
+   4222,
+   4749
+  ],
+  "w44": [
+   4253,
+   3165
+  ],
+  "w45": [
+   4217,
+   1291
+  ],
+  "e00": [
+   5859,
+   9111
+  ],
+  "e01": [
+   5807,
+   7857
+  ],
+  "e02": [
+   5761,
+   6394
+  ],
+  "e03": [
+   5831,
+   4905
+  ],
+  "e04": [
+   5711,
+   3271
+  ],
+  "e05": [
+   5755,
+   1370
+  ],
+  "e10": [
+   6784,
+   9148
+  ],
+  "e11": [
+   6721,
+   7763
+  ],
+  "e12": [
+   6597,
+   6307
+  ],
+  "e13": [
+   6734,
+   4886
+  ],
+  "e15": [
+   6617,
+   1506
+  ],
+  "e20": [
+   7564,
+   9188
+  ],
+  "e21": [
+   7507,
+   7694
+  ],
+  "e22": [
+   7706,
+   6465
+  ],
+  "e24": [
+   7543,
+   3103
+  ],
+  "e25": [
+   7610,
+   1386
+  ],
+  "e30": [
+   8571,
+   9191
+  ],
+  "e31": [
+   8497,
+   7708
+  ],
+  "e33": [
+   8440,
+   4889
+  ],
+  "e34": [
+   8562,
+   3159
+  ],
+  "e35": [
+   8476,
+   1312
+  ],
+  "e40": [
+   9369,
+   9175
+  ],
+  "e42": [
+   9484,
+   6320
+  ],
+  "e43": [
+   9324,
+   4753
+  ],
+  "e44": [
+   9470,
+   3115
+  ],
+  "e45": [
+   9292,
+   1305
+  ],
+  "w22r0": [
+   2262,
+   6380
+  ],
+  "w22r1": [
+   2438,
+   6211
+  ],
+  "w22r2": [
+   2621,
+   6371
+  ],
+  "w22r3": [
+   2443,
+   6571
+  ],
+  "w24r0": [
+   2300,
+   3226
+  ],
+  "w24r1": [
+   2477,
+   3067
+  ],
+  "w24r2": [
+   2659,
+   3246
+  ],
+  "w24r3": [
+   2471,
+   3427
+  ],
+  "w11r0": [
+   1556,
+   7667
+  ],
+  "w11r1": [
+   1729,
+   7818
+  ],
+  "w11r2": [
+   1371,
+   7856
+  ],
+  "e32r0": [
+   8523,
+   6271
+  ],
+  "e32r1": [
+   8712,
+   6426
+  ],
+  "e32r2": [
+   8529,
+   6631
+  ],
+  "e32r3": [
+   8354,
+   6454
+  ],
+  "e14r0": [
+   6796,
+   3175
+  ],
+  "e14r1": [
+   6629,
+   3372
+  ],
+  "e14r2": [
+   6438,
+   3208
+  ],
+  "e41r0": [
+   9114,
+   7775
+  ],
+  "e41r1": [
+   9316,
+   7615
+  ],
+  "e41r2": [
+   9303,
+   7974
+  ]
+ },
+ "segments": [
+  {
+   "id": "w00-w10",
+   "a": "w00",
+   "b": "w10",
+   "name": "Rocade Ouest",
+   "lanes": 3,
+   "speed": 80
+  },
+  {
+   "id": "w10-w20",
+   "a": "w10",
+   "b": "w20",
+   "name": "Rocade Ouest",
+   "lanes": 3,
+   "speed": 80
+  },
+  {
+   "id": "w20-w30",
+   "a": "w20",
+   "b": "w30",
+   "name": "Rocade Ouest",
+   "lanes": 3,
+   "speed": 80
+  },
+  {
+   "id": "w30-w40",
+   "a": "w30",
+   "b": "w40",
+   "name": "Rocade Ouest",
+   "lanes": 3,
+   "speed": 80
+  },
+  {
+   "id": "w01-w11",
+   "a": "w01",
+   "b": "w11r2",
+   "name": "Avenue Victor-Hugo",
+   "lanes": 1,
+   "speed": 40
+  },
+  {
+   "id": "w11-w21",
+   "a": "w11r1",
+   "b": "w21",
+   "name": "Avenue Victor-Hugo",
+   "lanes": 1,
+   "speed": 40
+  },
+  {
+   "id": "w21-w31",
+   "a": "w21",
+   "b": "w31",
+   "name": "Avenue Victor-Hugo",
+   "lanes": 1,
+   "speed": 40
+  },
+  {
+   "id": "w02-w12",
+   "a": "w02",
+   "b": "w12",
+   "name": "Rue Principale",
+   "lanes": 2,
+   "speed": 50
+  },
+  {
+   "id": "w12-w22",
+   "a": "w12",
+   "b": "w22r0",
+   "name": "Rue Principale",
+   "lanes": 2,
+   "speed": 50
+  },
+  {
+   "id": "w22-w32",
+   "a": "w22r2",
+   "b": "w32",
+   "name": "Rue Principale",
+   "lanes": 2,
+   "speed": 50
+  },
+  {
+   "id": "w32-w42",
+   "a": "w32",
+   "b": "w42",
+   "name": "Rue Principale",
+   "lanes": 2,
+   "speed": 50
+  },
+  {
+   "id": "w03-w13",
+   "a": "w03",
+   "b": "w13",
+   "name": "Rue des Écoles",
+   "lanes": 1,
+   "speed": 30,
+   "oneway": true
+  },
+  {
+   "id": "w23-w33",
+   "a": "w23",
+   "b": "w33",
+   "name": "Rue des Écoles",
+   "lanes": 1,
+   "speed": 30
+  },
+  {
+   "id": "w33-w43",
+   "a": "w33",
+   "b": "w43",
+   "name": "Rue des Écoles",
+   "lanes": 1,
+   "speed": 30
+  },
+  {
+   "id": "w04-w14",
+   "a": "w04",
+   "b": "w14",
+   "name": "Boulevard Sud",
+   "lanes": 2,
+   "speed": 50
+  },
+  {
+   "id": "w14-w24",
+   "a": "w14",
+   "b": "w24r0",
+   "name": "Boulevard Sud",
+   "lanes": 2,
+   "speed": 50
+  },
+  {
+   "id": "w24-w34",
+   "a": "w24r2",
+   "b": "w34",
+   "name": "Boulevard Sud",
+   "lanes": 2,
+   "speed": 50
+  },
+  {
+   "id": "w34-w44",
+   "a": "w34",
+   "b": "w44",
+   "name": "Boulevard Sud",
+   "lanes": 2,
+   "speed": 50
+  },
+  {
+   "id": "w05-w15",
+   "a": "w05",
+   "b": "w15",
+   "name": "Rocade Ouest",
+   "lanes": 3,
+   "speed": 80
+  },
+  {
+   "id": "w15-w25",
+   "a": "w15",
+   "b": "w25",
+   "name": "Rocade Ouest",
+   "lanes": 3,
+   "speed": 80
+  },
+  {
+   "id": "w25-w35",
+   "a": "w25",
+   "b": "w35",
+   "name": "Rocade Ouest",
+   "lanes": 3,
+   "speed": 80
+  },
+  {
+   "id": "w35-w45",
+   "a": "w35",
+   "b": "w45",
+   "name": "Rocade Ouest",
+   "lanes": 3,
+   "speed": 80
+  },
+  {
+   "id": "w00-w01",
+   "a": "w00",
+   "b": "w01",
+   "name": "Rocade Ouest",
+   "lanes": 3,
+   "speed": 80
+  },
+  {
+   "id": "w01-w02",
+   "a": "w01",
+   "b": "w02",
+   "name": "Rocade Ouest",
+   "lanes": 3,
+   "speed": 80
+  },
+  {
+   "id": "w02-w03",
+   "a": "w02",
+   "b": "w03",
+   "name": "Rocade Ouest",
+   "lanes": 3,
+   "speed": 80
+  },
+  {
+   "id": "w03-w04",
+   "a": "w03",
+   "b": "w04",
+   "name": "Rocade Ouest",
+   "lanes": 3,
+   "speed": 80
+  },
+  {
+   "id": "w04-w05",
+   "a": "w04",
+   "b": "w05",
+   "name": "Rocade Ouest",
+   "lanes": 3,
+   "speed": 80
+  },
+  {
+   "id": "w11-w12",
+   "a": "w11r0",
+   "b": "w12",
+   "name": "Rue de la Mairie",
+   "lanes": 1,
+   "speed": 30
+  },
+  {
+   "id": "w12-w13",
+   "a": "w12",
+   "b": "w13",
+   "name": "Rue de la Mairie",
+   "lanes": 1,
+   "speed": 30
+  },
+  {
+   "id": "w13-w14",
+   "a": "w13",
+   "b": "w14",
+   "name": "Rue de la Mairie",
+   "lanes": 1,
+   "speed": 30,
+   "oneway": true
+  },
+  {
+   "id": "w14-w15",
+   "a": "w14",
+   "b": "w15",
+   "name": "Rue de la Mairie",
+   "lanes": 1,
+   "speed": 30
+  },
+  {
+   "id": "w20-w21",
+   "a": "w20",
+   "b": "w21",
+   "name": "Boulevard Central",
+   "lanes": 2,
+   "speed": 50
+  },
+  {
+   "id": "w21-w22",
+   "a": "w21",
+   "b": "w22r3",
+   "name": "Boulevard Central",
+   "lanes": 2,
+   "speed": 50
+  },
+  {
+   "id": "w22-w23",
+   "a": "w22r1",
+   "b": "w23",
+   "name": "Boulevard Central",
+   "lanes": 2,
+   "speed": 50
+  },
+  {
+   "id": "w23-w24",
+   "a": "w23",
+   "b": "w24r3",
+   "name": "Boulevard Central",
+   "lanes": 2,
+   "speed": 50
+  },
+  {
+   "id": "w24-w25",
+   "a": "w24r1",
+   "b": "w25",
+   "name": "Boulevard Central",
+   "lanes": 2,
+   "speed": 50
+  },
+  {
+   "id": "w30-w31",
+   "a": "w30",
+   "b": "w31",
+   "name": "Rue des Lilas",
+   "lanes": 1,
+   "speed": 30
+  },
+  {
+   "id": "w32-w33",
+   "a": "w32",
+   "b": "w33",
+   "name": "Rue des Lilas",
+   "lanes": 1,
+   "speed": 30
+  },
+  {
+   "id": "w33-w34",
+   "a": "w33",
+   "b": "w34",
+   "name": "Rue des Lilas",
+   "lanes": 1,
+   "speed": 30
+  },
+  {
+   "id": "w40-w41",
+   "a": "w40",
+   "b": "w41",
+   "name": "Quai Ouest",
+   "lanes": 1,
+   "speed": 40
+  },
+  {
+   "id": "w41-w42",
+   "a": "w41",
+   "b": "w42",
+   "name": "Quai Ouest",
+   "lanes": 1,
+   "speed": 40
+  },
+  {
+   "id": "w42-w43",
+   "a": "w42",
+   "b": "w43",
+   "name": "Quai Ouest",
+   "lanes": 1,
+   "speed": 40
+  },
+  {
+   "id": "w43-w44",
+   "a": "w43",
+   "b": "w44",
+   "name": "Quai Ouest",
+   "lanes": 1,
+   "speed": 40
+  },
+  {
+   "id": "w44-w45",
+   "a": "w44",
+   "b": "w45",
+   "name": "Quai Ouest",
+   "lanes": 1,
+   "speed": 40
+  },
+  {
+   "id": "e00-e10",
+   "a": "e00",
+   "b": "e10",
+   "name": "Rocade Est",
+   "lanes": 3,
+   "speed": 80
+  },
+  {
+   "id": "e10-e20",
+   "a": "e10",
+   "b": "e20",
+   "name": "Rocade Est",
+   "lanes": 3,
+   "speed": 80
+  },
+  {
+   "id": "e20-e30",
+   "a": "e20",
+   "b": "e30",
+   "name": "Rocade Est",
+   "lanes": 3,
+   "speed": 80
+  },
+  {
+   "id": "e30-e40",
+   "a": "e30",
+   "b": "e40",
+   "name": "Rocade Est",
+   "lanes": 3,
+   "speed": 80
+  },
+  {
+   "id": "e11-e21",
+   "a": "e11",
+   "b": "e21",
+   "name": "Avenue Pasteur",
+   "lanes": 1,
+   "speed": 40
+  },
+  {
+   "id": "e21-e31",
+   "a": "e21",
+   "b": "e31",
+   "name": "Avenue Pasteur",
+   "lanes": 1,
+   "speed": 40
+  },
+  {
+   "id": "e31-e41",
+   "a": "e31",
+   "b": "e41r0",
+   "name": "Avenue Pasteur",
+   "lanes": 1,
+   "speed": 40
+  },
+  {
+   "id": "e02-e12",
+   "a": "e02",
+   "b": "e12",
+   "name": "Rue Principale",
+   "lanes": 2,
+   "speed": 50
+  },
+  {
+   "id": "e12-e22",
+   "a": "e12",
+   "b": "e22",
+   "name": "Rue Principale",
+   "lanes": 2,
+   "speed": 50
+  },
+  {
+   "id": "e22-e32",
+   "a": "e22",
+   "b": "e32r3",
+   "name": "Rue Principale",
+   "lanes": 2,
+   "speed": 50
+  },
+  {
+   "id": "e32-e42",
+   "a": "e32r1",
+   "b": "e42",
+   "name": "Rue Principale",
+   "lanes": 2,
+   "speed": 50
+  },
+  {
+   "id": "e33-e43",
+   "a": "e33",
+   "b": "e43",
+   "name": "Rue du Marché",
+   "lanes": 1,
+   "speed": 30,
+   "oneway": true
+  },
+  {
+   "id": "e04-e14",
+   "a": "e04",
+   "b": "e14r2",
+   "name": "Boulevard Sud",
+   "lanes": 2,
+   "speed": 50
+  },
+  {
+   "id": "e14-e24",
+   "a": "e14r0",
+   "b": "e24",
+   "name": "Boulevard Sud",
+   "lanes": 2,
+   "speed": 50
+  },
+  {
+   "id": "e24-e34",
+   "a": "e24",
+   "b": "e34",
+   "name": "Boulevard Sud",
+   "lanes": 2,
+   "speed": 50
+  },
+  {
+   "id": "e34-e44",
+   "a": "e34",
+   "b": "e44",
+   "name": "Boulevard Sud",
+   "lanes": 2,
+   "speed": 50
+  },
+  {
+   "id": "e05-e15",
+   "a": "e05",
+   "b": "e15",
+   "name": "Rocade Est",
+   "lanes": 3,
+   "speed": 80
+  },
+  {
+   "id": "e15-e25",
+   "a": "e15",
+   "b": "e25",
+   "name": "Rocade Est",
+   "lanes": 3,
+   "speed": 80
+  },
+  {
+   "id": "e25-e35",
+   "a": "e25",
+   "b": "e35",
+   "name": "Rocade Est",
+   "lanes": 3,
+   "speed": 80
+  },
+  {
+   "id": "e35-e45",
+   "a": "e35",
+   "b": "e45",
+   "name": "Rocade Est",
+   "lanes": 3,
+   "speed": 80
+  },
+  {
+   "id": "e00-e01",
+   "a": "e00",
+   "b": "e01",
+   "name": "Quai Est",
+   "lanes": 1,
+   "speed": 40
+  },
+  {
+   "id": "e01-e02",
+   "a": "e01",
+   "b": "e02",
+   "name": "Quai Est",
+   "lanes": 1,
+   "speed": 40
+  },
+  {
+   "id": "e02-e03",
+   "a": "e02",
+   "b": "e03",
+   "name": "Quai Est",
+   "lanes": 1,
+   "speed": 40
+  },
+  {
+   "id": "e03-e04",
+   "a": "e03",
+   "b": "e04",
+   "name": "Quai Est",
+   "lanes": 1,
+   "speed": 40
+  },
+  {
+   "id": "e04-e05",
+   "a": "e04",
+   "b": "e05",
+   "name": "Quai Est",
+   "lanes": 1,
+   "speed": 40
+  },
+  {
+   "id": "e10-e11",
+   "a": "e10",
+   "b": "e11",
+   "name": "Rue du Lycée",
+   "lanes": 1,
+   "speed": 30
+  },
+  {
+   "id": "e11-e12",
+   "a": "e11",
+   "b": "e12",
+   "name": "Rue du Lycée",
+   "lanes": 1,
+   "speed": 30
+  },
+  {
+   "id": "e12-e13",
+   "a": "e12",
+   "b": "e13",
+   "name": "Rue du Lycée",
+   "lanes": 1,
+   "speed": 30
+  },
+  {
+   "id": "e13-e14",
+   "a": "e13",
+   "b": "e14r1",
+   "name": "Rue du Lycée",
+   "lanes": 1,
+   "speed": 30
+  },
+  {
+   "id": "e20-e21",
+   "a": "e20",
+   "b": "e21",
+   "name": "Boulevard Central",
+   "lanes": 2,
+   "speed": 50
+  },
+  {
+   "id": "e21-e22",
+   "a": "e21",
+   "b": "e22",
+   "name": "Boulevard Central",
+   "lanes": 2,
+   "speed": 50
+  },
+  {
+   "id": "e24-e25",
+   "a": "e24",
+   "b": "e25",
+   "name": "Boulevard Central",
+   "lanes": 2,
+   "speed": 50
+  },
+  {
+   "id": "e31-e32",
+   "a": "e31",
+   "b": "e32r2",
+   "name": "Rue des Tilleuls",
+   "lanes": 1,
+   "speed": 30
+  },
+  {
+   "id": "e32-e33",
+   "a": "e32r0",
+   "b": "e33",
+   "name": "Rue des Tilleuls",
+   "lanes": 1,
+   "speed": 30,
+   "oneway": true
+  },
+  {
+   "id": "e33-e34",
+   "a": "e33",
+   "b": "e34",
+   "name": "Rue des Tilleuls",
+   "lanes": 1,
+   "speed": 30
+  },
+  {
+   "id": "e34-e35",
+   "a": "e34",
+   "b": "e35",
+   "name": "Rue des Tilleuls",
+   "lanes": 1,
+   "speed": 30
+  },
+  {
+   "id": "e40-e41",
+   "a": "e40",
+   "b": "e41r2",
+   "name": "Rocade Est",
+   "lanes": 3,
+   "speed": 80
+  },
+  {
+   "id": "e41-e42",
+   "a": "e41r1",
+   "b": "e42",
+   "name": "Rocade Est",
+   "lanes": 3,
+   "speed": 80
+  },
+  {
+   "id": "e42-e43",
+   "a": "e42",
+   "b": "e43",
+   "name": "Rocade Est",
+   "lanes": 3,
+   "speed": 80
+  },
+  {
+   "id": "e43-e44",
+   "a": "e43",
+   "b": "e44",
+   "name": "Rocade Est",
+   "lanes": 3,
+   "speed": 80
+  },
+  {
+   "id": "e44-e45",
+   "a": "e44",
+   "b": "e45",
+   "name": "Rocade Est",
+   "lanes": 3,
+   "speed": 80
+  },
+  {
+   "id": "e22-e24",
+   "a": "e22",
+   "b": "e24",
+   "name": "Tunnel de la Colline",
+   "lanes": 2,
+   "speed": 60,
+   "tunnel": true
+  },
+  {
+   "id": "w42-e02",
+   "a": "w42",
+   "b": "e02",
+   "name": "Rue Principale",
+   "lanes": 1,
+   "speed": 50,
+   "crossing": true,
+   "exit_headway_s": 6
+  },
+  {
+   "id": "w44-e04",
+   "a": "w44",
+   "b": "e04",
+   "name": "Pont Sud",
+   "lanes": 1,
+   "speed": 50,
+   "crossing": true,
+   "exit_headway_s": 6,
+   "closed": true,
+   "works": true
+  },
+  {
+   "id": "w22-ring0",
+   "a": "w22r0",
+   "b": "w22r1",
+   "name": "Rond-point",
+   "lanes": 1,
+   "speed": 25,
+   "oneway": true,
+   "roundabout": true
+  },
+  {
+   "id": "w22-ring1",
+   "a": "w22r1",
+   "b": "w22r2",
+   "name": "Rond-point",
+   "lanes": 1,
+   "speed": 25,
+   "oneway": true,
+   "roundabout": true
+  },
+  {
+   "id": "w22-ring2",
+   "a": "w22r2",
+   "b": "w22r3",
+   "name": "Rond-point",
+   "lanes": 1,
+   "speed": 25,
+   "oneway": true,
+   "roundabout": true
+  },
+  {
+   "id": "w22-ring3",
+   "a": "w22r3",
+   "b": "w22r0",
+   "name": "Rond-point",
+   "lanes": 1,
+   "speed": 25,
+   "oneway": true,
+   "roundabout": true
+  },
+  {
+   "id": "w24-ring0",
+   "a": "w24r0",
+   "b": "w24r1",
+   "name": "Rond-point",
+   "lanes": 1,
+   "speed": 25,
+   "oneway": true,
+   "roundabout": true
+  },
+  {
+   "id": "w24-ring1",
+   "a": "w24r1",
+   "b": "w24r2",
+   "name": "Rond-point",
+   "lanes": 1,
+   "speed": 25,
+   "oneway": true,
+   "roundabout": true
+  },
+  {
+   "id": "w24-ring2",
+   "a": "w24r2",
+   "b": "w24r3",
+   "name": "Rond-point",
+   "lanes": 1,
+   "speed": 25,
+   "oneway": true,
+   "roundabout": true
+  },
+  {
+   "id": "w24-ring3",
+   "a": "w24r3",
+   "b": "w24r0",
+   "name": "Rond-point",
+   "lanes": 1,
+   "speed": 25,
+   "oneway": true,
+   "roundabout": true
+  },
+  {
+   "id": "w11-ring0",
+   "a": "w11r0",
+   "b": "w11r1",
+   "name": "Rond-point",
+   "lanes": 1,
+   "speed": 25,
+   "oneway": true,
+   "roundabout": true
+  },
+  {
+   "id": "w11-ring1",
+   "a": "w11r1",
+   "b": "w11r2",
+   "name": "Rond-point",
+   "lanes": 1,
+   "speed": 25,
+   "oneway": true,
+   "roundabout": true
+  },
+  {
+   "id": "w11-ring2",
+   "a": "w11r2",
+   "b": "w11r0",
+   "name": "Rond-point",
+   "lanes": 1,
+   "speed": 25,
+   "oneway": true,
+   "roundabout": true
+  },
+  {
+   "id": "e32-ring0",
+   "a": "e32r0",
+   "b": "e32r1",
+   "name": "Rond-point",
+   "lanes": 1,
+   "speed": 25,
+   "oneway": true,
+   "roundabout": true
+  },
+  {
+   "id": "e32-ring1",
+   "a": "e32r1",
+   "b": "e32r2",
+   "name": "Rond-point",
+   "lanes": 1,
+   "speed": 25,
+   "oneway": true,
+   "roundabout": true
+  },
+  {
+   "id": "e32-ring2",
+   "a": "e32r2",
+   "b": "e32r3",
+   "name": "Rond-point",
+   "lanes": 1,
+   "speed": 25,
+   "oneway": true,
+   "roundabout": true
+  },
+  {
+   "id": "e32-ring3",
+   "a": "e32r3",
+   "b": "e32r0",
+   "name": "Rond-point",
+   "lanes": 1,
+   "speed": 25,
+   "oneway": true,
+   "roundabout": true
+  },
+  {
+   "id": "e14-ring0",
+   "a": "e14r0",
+   "b": "e14r1",
+   "name": "Rond-point",
+   "lanes": 1,
+   "speed": 25,
+   "oneway": true,
+   "roundabout": true
+  },
+  {
+   "id": "e14-ring1",
+   "a": "e14r1",
+   "b": "e14r2",
+   "name": "Rond-point",
+   "lanes": 1,
+   "speed": 25,
+   "oneway": true,
+   "roundabout": true
+  },
+  {
+   "id": "e14-ring2",
+   "a": "e14r2",
+   "b": "e14r0",
+   "name": "Rond-point",
+   "lanes": 1,
+   "speed": 25,
+   "oneway": true,
+   "roundabout": true
+  },
+  {
+   "id": "e41-ring0",
+   "a": "e41r0",
+   "b": "e41r1",
+   "name": "Rond-point",
+   "lanes": 1,
+   "speed": 25,
+   "oneway": true,
+   "roundabout": true
+  },
+  {
+   "id": "e41-ring1",
+   "a": "e41r1",
+   "b": "e41r2",
+   "name": "Rond-point",
+   "lanes": 1,
+   "speed": 25,
+   "oneway": true,
+   "roundabout": true
+  },
+  {
+   "id": "e41-ring2",
+   "a": "e41r2",
+   "b": "e41r0",
+   "name": "Rond-point",
+   "lanes": 1,
+   "speed": 25,
+   "oneway": true,
+   "roundabout": true
+  }
+ ]
+}

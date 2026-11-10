@@ -1,0 +1,166 @@
+name: trafic-temps-reel
+
+services:
+  # ─────────────────────────── Transport : Kafka (KRaft, sans Zookeeper) ───────────────────────────
+  kafka:
+    image: apache/kafka:3.7.1
+    container_name: kafka
+    ports:
+      - "29092:29092"          # écoute "externe" pour se connecter depuis l'hôte (debug)
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:29092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,EXTERNAL://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      # Flink horodate ses messages en temps simule (proche de 1970) : sans ceci,
+      # Kafka les supprimerait comme trop vieux.
+      KAFKA_LOG_MESSAGE_TIMESTAMP_TYPE: LogAppendTime
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  # Crée les topics une bonne fois (évite les erreurs de démarrage côté Flink).
+  kafka-init:
+    image: apache/kafka:3.7.1
+    depends_on:
+      kafka:
+        condition: service_healthy
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - >
+        for t in positions probes speeds late invalid control scenario; do
+          /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092
+          --create --if-not-exists --topic $$t --partitions 1 --replication-factor 1;
+        done;
+        echo "Topics prets."
+    restart: "no"
+
+  # ─────────────────────────── Traitement : Flink ───────────────────────────
+  jobmanager:
+    build: ./flink
+    image: trafic-flink:1.18
+    container_name: jobmanager
+    ports:
+      - "8081:8081"            # interface web de Flink (http://localhost:8081)
+    command: jobmanager
+    environment:
+      FLINK_PROPERTIES: |
+        jobmanager.rpc.address: jobmanager
+        parallelism.default: 1
+        heartbeat.interval: 3000
+        heartbeat.timeout: 10000
+
+  # Deux workers a un seul slot : chaque job (un par rive) occupe le sien.
+  taskmanager-1:
+    image: trafic-flink:1.18
+    container_name: taskmanager-1
+    depends_on:
+      - jobmanager
+    command: taskmanager
+    environment:
+      FLINK_PROPERTIES: |
+        jobmanager.rpc.address: jobmanager
+        taskmanager.host: taskmanager-1
+        taskmanager.numberOfTaskSlots: 1
+        parallelism.default: 1
+        heartbeat.interval: 3000
+        heartbeat.timeout: 10000
+
+  taskmanager-2:
+    image: trafic-flink:1.18
+    container_name: taskmanager-2
+    depends_on:
+      - jobmanager
+    command: taskmanager
+    environment:
+      FLINK_PROPERTIES: |
+        jobmanager.rpc.address: jobmanager
+        taskmanager.host: taskmanager-2
+        taskmanager.numberOfTaskSlots: 1
+        parallelism.default: 1
+        heartbeat.interval: 3000
+        heartbeat.timeout: 10000
+
+  # Soumet le job PyFlink au cluster, puis s'arrête.
+  job-submitter:
+    image: trafic-flink:1.18
+    container_name: job-submitter
+    depends_on:
+      kafka-init:
+        condition: service_completed_successfully
+      jobmanager:
+        condition: service_started
+      taskmanager-1:
+        condition: service_started
+      taskmanager-2:
+        condition: service_started
+    volumes:
+      - ./job:/opt/job
+      - ./city.json:/opt/city.json:ro
+    environment:
+      WINDOW_S: ${WINDOW_S}
+      WATERMARK_DELAY_S: ${WATERMARK_DELAY_S}
+      MAX_SPEED_KMH: ${MAX_SPEED_KMH}
+      MAX_ROAD_DIST: ${MAX_ROAD_DIST}
+      CHECKPOINT_INTERVAL_MS: ${CHECKPOINT_INTERVAL_MS}
+      KAFKA_BOOTSTRAP: kafka:9092
+    entrypoint: ["/bin/bash", "-c"]
+    command:
+      - >
+        echo "Attente du JobManager..." &&
+        until curl -s http://jobmanager:8081/overview >/dev/null; do sleep 2; done &&
+        echo "Soumission des deux jobs PyFlink, un par rive..." &&
+        SIDE=w flink run -d -m jobmanager:8081 -py /opt/job/traffic_job.py &&
+        SIDE=e flink run -d -m jobmanager:8081 -py /opt/job/traffic_job.py
+    restart: "no"
+
+  # ─────────────────────────── Source : le simulateur de ville ───────────────────────────
+  simulator:
+    build: ./simulator
+    container_name: simulator
+    depends_on:
+      kafka-init:
+        condition: service_completed_successfully
+    volumes:
+      - ./city.json:/app/city.json:ro
+    environment:
+      KAFKA_BOOTSTRAP: kafka:9092
+      SPEEDUP: ${SPEEDUP}
+      TICK_REAL: ${TICK_REAL}
+      PROBE_INTERVAL_S: ${PROBE_INTERVAL_S}
+      WINDOW_S: ${WINDOW_S}
+      WATERMARK_DELAY_S: ${WATERMARK_DELAY_S}
+      TUNNEL_RECONNECT_MAX_S: ${TUNNEL_RECONNECT_MAX_S}
+      GPS_ERROR_TUNNEL: ${GPS_ERROR_TUNNEL}
+      GPS_ERROR_CITY: ${GPS_ERROR_CITY}
+      N_CARS: ${N_CARS}
+      MAX_CARS: ${MAX_CARS}
+
+  # ─────────────────────────── Interface visuelle ───────────────────────────
+  web:
+    build: ./web
+    container_name: web
+    ports:
+      - "127.0.0.1:8080:8080"  # l'interface : http://localhost:8080 (pilote la ville, reste en local)
+    depends_on:
+      kafka-init:
+        condition: service_completed_successfully
+    volumes:
+      - ./city.json:/app/city.json:ro
+      - /var/run/docker.sock:/var/run/docker.sock   # pour le bouton « Simuler une panne »
+    environment:
+      KAFKA_BOOTSTRAP: kafka:9092
+      WINDOW_S: ${WINDOW_S}
+      WATERMARK_DELAY_S: ${WATERMARK_DELAY_S}
+      SPEEDUP: ${SPEEDUP}
+      PROBE_INTERVAL_S: ${PROBE_INTERVAL_S}
+      MAX_CARS: ${MAX_CARS}

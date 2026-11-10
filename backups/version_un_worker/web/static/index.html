@@ -1,0 +1,790 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Trafic en temps réel</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --page: #0d0d0d; --surface: #1a1a19; --line: #2c2c2a; --axis: #383835;
+    --text: #f0efec; --text-2: #c3c2b7; --muted: #898781;
+    --series-published: #3987e5; --series-late: #d95926; --series-invalid: #199e70;
+    --good: #0ca30c; --warning: #fab219; --critical: #d03b3b; --unknown: #4b5260;
+    --land: #171815; --building: #26272a; --park: #1d2c1f; --hill: #2b2a1e; --water: #16324d;
+    --stopped: #ff6b5e;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--page); color: var(--text);
+    font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif;
+    display: flex; height: 100vh; overflow: hidden;
+  }
+  main { flex: 1; min-width: 0; overflow-y: auto; }
+  #stage { position: relative; height: 52vh; min-height: 340px; }
+  canvas { display: block; width: 100%; height: 100%; cursor: pointer; }
+  #title {
+    position: absolute; top: 10px; left: 12px; font-size: 14px; font-weight: 600; pointer-events: none;
+    background: rgba(13, 13, 13, .78); padding: 5px 9px; border-radius: 6px;
+  }
+  #title small { display: block; color: var(--text-2); font-weight: 400; font-size: 12px; }
+  #pause_badge {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: none; pointer-events: none;
+    background: rgba(13, 13, 13, .88); padding: 10px 18px; border-radius: 8px; font-size: 16px; font-weight: 600;
+  }
+
+  #analysis { padding: 14px 16px 24px; border-top: 1px solid var(--line); }
+  .filters { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+  .filters label { color: var(--text-2); }
+  select {
+    background: var(--surface); color: var(--text); border: 1px solid var(--axis);
+    border-radius: 6px; padding: 6px 10px; font: inherit; min-width: 280px;
+  }
+  button {
+    background: var(--surface); color: var(--text); border: 1px solid var(--axis);
+    border-radius: 6px; padding: 6px 12px; font: inherit; cursor: pointer;
+  }
+  button:hover { background: var(--axis); }
+  button:disabled { opacity: .5; cursor: default; }
+  #outage_badge {
+    position: absolute; top: 12px; left: 50%; transform: translateX(-50%); display: none; pointer-events: none;
+    background: var(--critical); padding: 8px 14px; border-radius: 8px; font-weight: 600; white-space: nowrap;
+  }
+  .hint { color: var(--muted); font-size: 12px; }
+
+  #why { background: var(--surface); border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; color: var(--text-2); }
+  #why b { color: var(--text); }
+
+  .tiles { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; margin-bottom: 12px; }
+  .tile { background: var(--surface); border-radius: 8px; padding: 10px 12px; }
+  .tile .l { color: var(--text-2); font-size: 12px; }
+  .tile .v { font-size: 24px; font-weight: 700; margin: 2px 0; }
+  .tile .s { color: var(--muted); font-size: 11px; }
+
+  .card { background: var(--surface); border-radius: 8px; padding: 12px; margin-bottom: 12px; }
+  .card h2 { margin: 0 0 8px; font-size: 13px; font-weight: 600; }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12px; color: var(--text-2); margin-bottom: 6px; }
+  .legend svg { vertical-align: -2px; margin-right: 5px; }
+  #chart { position: relative; touch-action: pan-y; }
+  #tooltip {
+    position: absolute; top: 8px; display: none; pointer-events: none; z-index: 2;
+    background: #0d0d0d; border: 1px solid var(--axis); border-radius: 6px;
+    padding: 8px 10px; font-size: 12px; width: 210px;
+  }
+  #tooltip b { display: block; margin-bottom: 4px; }
+  #tooltip div { display: flex; justify-content: space-between; color: var(--text-2); }
+  #tooltip span:last-child { color: var(--text); font-variant-numeric: tabular-nums; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { color: var(--muted); font-weight: 500; font-size: 12px; text-align: right; padding: 4px 8px; }
+  td { text-align: right; padding: 5px 8px; border-top: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+  th:first-child, td:first-child { text-align: left; }
+
+  aside {
+    width: 300px; flex: none; border-left: 1px solid var(--line); padding: 14px;
+    overflow-y: auto; display: flex; flex-direction: column; gap: 12px;
+  }
+  .clocks { display: flex; gap: 8px; }
+  .clock { flex: 1; text-align: center; background: var(--surface); border-radius: 8px; padding: 10px; }
+  .clock .v { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .clock .l { font-size: 11px; color: var(--text-2); }
+  aside .card { margin: 0; }
+  .slider-head { display: flex; justify-content: space-between; align-items: baseline; color: var(--text-2); font-size: 13px; }
+  .slider-head b { color: var(--text); font-size: 20px; }
+  input[type=range] { width: 100%; margin: 6px 0 10px; accent-color: var(--series-published); }
+  .closed-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 4px 0; border-top: 1px solid var(--line); font-size: 13px; }
+  .closed-row button { padding: 2px 8px; font-size: 12px; flex: none; }
+  .map-legend { font-size: 12px; color: var(--text-2); display: grid; gap: 4px; }
+  .map-legend i { display: inline-block; width: 18px; height: 5px; border-radius: 3px; margin-right: 7px; vertical-align: 2px; }
+  .row { display: flex; justify-content: space-between; margin: 3px 0; color: var(--text-2); font-size: 13px; }
+  .row b { color: var(--text); font-variant-numeric: tabular-nums; font-weight: 600; }
+  #log { font-size: 12px; color: var(--text-2); }
+  #log div { padding: 3px 0; border-top: 1px solid var(--line); }
+  #log time { color: var(--muted); font-variant-numeric: tabular-nums; margin-right: 4px; }
+
+  @media (max-width: 1100px) {
+    body { display: block; height: auto; overflow: auto; }
+    main { overflow: visible; }
+    aside { width: auto; border-left: 0; border-top: 1px solid var(--line); }
+    .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    select { min-width: 0; width: 100%; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <div id="stage">
+    <div id="title">Comment Google Maps connaît-il les bouchons&nbsp;?
+      <small>vitesse moyenne par tronçon &bull; fenêtres d'une minute en temps de l'évènement</small>
+    </div>
+    <canvas id="c"></canvas>
+    <div id="pause_badge">En pause : Espace pour reprendre</div>
+    <div id="outage_badge"></div>
+  </div>
+
+  <section id="analysis">
+    <div class="filters">
+      <label for="street">Tronçon analysé</label>
+      <select id="street"></select>
+      <button id="toggle_road"></button>
+      <span class="hint">ou cliquez sur une rue de la carte</span>
+    </div>
+
+    <div id="why"></div>
+
+    <div class="tiles">
+      <div class="tile"><div class="l">Moyenne publiée</div><div class="v" id="t_pub">–</div><div class="s" id="t_pub_s">en attente d'une fenêtre</div></div>
+      <div class="tile"><div class="l">Voitures présentes</div><div class="v" id="t_cars">–</div><div class="s" id="t_cars_s">moyenne de la fenêtre</div></div>
+      <div class="tile"><div class="l">Sauvées par le watermark</div><div class="v" id="t_saved">0</div><div class="s">en désordre, mais à temps</div></div>
+      <div class="tile"><div class="l">Retards écartés</div><div class="v" id="t_late">0</div><div class="s">fenêtre déjà fermée</div></div>
+      <div class="tile"><div class="l">Points rejetés</div><div class="v" id="t_invalid">0</div><div class="s">données aberrantes</div></div>
+      <div class="tile"><div class="l">Sans filtre</div><div class="v" id="t_raw">–</div><div class="s" id="t_raw_s">aucun rejet</div></div>
+    </div>
+
+    <div class="card">
+      <h2 id="chart_title">Évènements du tronçon</h2>
+      <div class="legend">
+        <span><svg width="22" height="10"><line x1="0" y1="5" x2="22" y2="5" stroke="var(--series-published)" stroke-width="2"/><circle cx="11" cy="5" r="4" fill="var(--series-published)"/></svg>Moyenne publiée (km/h)</span>
+        <span><svg width="10" height="10"><circle cx="5" cy="5" r="4" fill="var(--series-late)"/></svg>Sonde arrivée trop tard</span>
+        <span><svg width="10" height="10"><path d="M1 1L9 9M9 1L1 9" stroke="var(--series-invalid)" stroke-width="2" stroke-linecap="round"/></svg>Point GPS rejeté</span>
+        <span><svg width="10" height="10"><rect width="10" height="10" rx="2" fill="var(--muted)"/></svg>Voitures présentes</span>
+        <span><svg width="10" height="10"><line x1="5" y1="0" x2="5" y2="10" stroke="var(--text)" stroke-width="2"/></svg>Votre action</span>
+      </div>
+      <div id="chart"><div id="tooltip"></div><svg id="plot" role="img" aria-label="Moyenne publiée, voitures présentes, retards et rejets par fenêtre ; les valeurs sont dans le tableau ci-dessous"></svg></div>
+    </div>
+
+    <div class="card">
+      <h2>Détail par fenêtre</h2>
+      <table>
+        <thead><tr><th>Fenêtre</th><th>Moyenne publiée</th><th>Voitures</th><th>Sondes</th><th>Sauvées</th><th>Retards</th><th>Rejets</th><th>Avec retards</th><th>Sans filtre</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<aside>
+  <div class="card">
+    <h2>Scénario <span class="hint">&bull; Espace : pause</span></h2>
+    <div class="slider-head"><span>Voitures en ville</span><b id="cars_value">–</b></div>
+    <input type="range" id="cars" min="0" max="300" step="10" aria-label="Nombre de voitures" />
+    <div class="slider-head" style="margin-bottom:4px"><span>Routes fermées</span></div>
+    <div id="closed_list"></div>
+    <button id="outage" style="width:100%;margin-top:10px">Simuler une panne de Flink</button>
+    <div class="hint" id="control_error"></div>
+  </div>
+  <div class="clocks">
+    <div class="clock"><div class="v" id="vclock">00:00</div><div class="l">temps de l'évènement</div></div>
+    <div class="clock"><div class="v" id="wm">00:00</div><div class="l">watermark Flink</div></div>
+  </div>
+  <div class="card">
+    <h2>Carte</h2>
+    <div class="map-legend">
+      <span><i style="background:var(--good)"></i>Fluide, 40 km/h et plus</span>
+      <span><i style="background:var(--warning)"></i>Dense, 25 à 40 km/h</span>
+      <span><i style="background:var(--critical)"></i>Bouchon, moins de 25 km/h</span>
+      <span><i style="background:var(--unknown)"></i>Pas de donnée récente</span>
+      <span><svg width="18" height="10" style="margin-right:7px;vertical-align:-1px"><circle cx="9" cy="5" r="4" fill="var(--stopped)"/></svg>Voiture à l'arrêt</span>
+      <span><svg width="18" height="10" style="margin-right:7px;vertical-align:-1px"><circle cx="9" cy="5" r="4" fill="none" stroke="#f0efec" stroke-width="1.5"/></svg>Voiture sans réseau</span>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Toute la ville</h2>
+    <div class="row"><span>Fenêtres publiées</span><b id="g_win">0</b></div>
+    <div class="row"><span>Sauvées par le watermark</span><b id="g_saved">0</b></div>
+    <div class="row"><span>Retards écartés</span><b id="g_late">0</b></div>
+    <div class="row"><span>Hors route</span><b id="g_hors_route">0</b></div>
+    <div class="row"><span>Hors carte</span><b id="g_hors_carte">0</b></div>
+    <div class="row"><span>Vitesse impossible</span><b id="g_vitesse_impossible">0</b></div>
+  </div>
+  <div class="card">
+    <h2>Derniers évènements</h2>
+    <div id="log"></div>
+  </div>
+</aside>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const canvas = $("c"), ctx = canvas.getContext("2d");
+const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const REASONS = {
+  hors_route: "hors route", hors_carte: "hors carte",
+  vitesse_impossible: "vitesse impossible", horodatage: "horodatage",
+};
+const VISIBLE_WINDOWS = 10;
+const TABLE_ROWS = 8;
+const RENDER_EVERY_MS = 500;
+const RECOVERED_NOTICE_MS = 8000;
+const STALE_WINDOWS = 3;       // au-delà, une couleur de rue n'est plus d'actualité
+const STOPPED_KMH = 8;
+const LANE_OFFSET_PX = 3.5;
+const MARGIN = 26;
+let lastRender = 0;
+
+let CITY = null, SEGS = {}, CFG = { window_ms: 60000, watermark_delay_ms: 30000, probe_interval_ms: 3000, max_cars: 300 };
+let TUNNEL = null, selected = null, hoverX = null;
+let W = 0, H = 0, background = null, buildings = [];
+let dragging = false, closedKey = null, paused = false, outage = { phase: "idle" };
+
+const cars = new Map();       // id -> {x, y, rx, ry, kmh, segment, side, offline}
+const live = new Map();       // tronçon -> {count, stopped}, état réel à l'instant
+let closed = new Set();
+const lastSpeed = new Map();  // tronçon -> {avg, end}
+const byStreet = new Map();   // tronçon -> Map(début de fenêtre -> fenêtre)
+const events = [];            // journal des retards et rejets, le plus récent d'abord
+const actions = [];           // actions de l'utilisateur, en temps de l'évènement
+const totals = { win: 0, saved: 0, late: 0, hors_route: 0, hors_carte: 0, vitesse_impossible: 0 };
+let maxEventTime = 0, tunnelFlash = 0;
+let flinkWatermark = 0;       // dernière valeur envoyée par Flink, avance par sauts
+
+const fmt = (ms) => {
+  const s = Math.floor(Math.max(0, ms) / 1000);
+  return String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0");
+};
+const segLength = (s) => Math.hypot(CITY.nodes[s.b][0] - CITY.nodes[s.a][0], CITY.nodes[s.b][1] - CITY.nodes[s.a][1]);
+const capacity = (id) => Math.floor((2 * segLength(SEGS[id])) / CITY.car_spacing);
+const carsPresent = (w) => (w.count * CFG.probe_interval_ms) / CFG.window_ms;
+
+function windowOf(segment, ws) {
+  if (!byStreet.has(segment)) byStreet.set(segment, new Map());
+  const street = byStreet.get(segment);
+  if (!street.has(ws)) street.set(ws, { ws, avg: null, count: 0, saved: 0, late: [], invalid: [], seen: new Set() });
+  return street.get(ws);
+}
+const withLate = (w) => {
+  if (w.avg == null || !w.late.length) return null;
+  const sum = w.avg * w.count + w.late.reduce((a, e) => a + e.speed, 0);
+  return sum / (w.count + w.late.length);
+};
+const withoutFilter = (w) => {
+  const speeds = w.invalid.filter((e) => e.speed != null);
+  if (w.avg == null || !speeds.length) return null;
+  const sum = w.avg * w.count + speeds.reduce((a, e) => a + e.speed, 0);
+  return sum / (w.count + speeds.length);
+};
+const round = (v) => (v == null ? "–" : Math.round(v));
+
+// --- flux ---
+function handlePositions(d) {
+  maxEventTime = Math.max(maxEventTime, d.event_time);
+  closed = new Set(d.closed);
+  paused = d.paused;
+  $("pause_badge").style.display = paused ? "block" : "none";
+  live.clear();
+  const seen = new Set();
+  for (const [id, x, y, kmh, segment, side, offline] of d.cars) {
+    seen.add(id);
+    let car = cars.get(id);
+    if (!car) { car = { rx: x, ry: y }; cars.set(id, car); }
+    Object.assign(car, { x, y, kmh, segment, side, offline });
+    if (!live.has(segment)) live.set(segment, { count: 0, stopped: 0 });
+    const stats = live.get(segment);
+    stats.count++;
+    if (kmh < STOPPED_KMH) stats.stopped++;
+  }
+  for (const id of cars.keys()) if (!seen.has(id)) cars.delete(id);
+  $("cars_value").textContent = dragging ? $("cars").value : d.n_cars;
+  if (!dragging) $("cars").value = d.n_cars;
+}
+
+function handle(msg, isLive) {
+  const d = msg.data;
+  if (msg.type === "history") { d.forEach((m) => handle(m, false)); return; }
+  if (msg.type === "position") { handlePositions(d); return; }
+  if (msg.type === "scenario") { actions.push(d); return; }
+  if (msg.type === "outage") { outage = d; return; }
+  if (msg.type === "speed") {
+    const w = windowOf(d.segment, d.window_start);
+    // Après une reprise, Flink peut republier une fenêtre : la dernière version remplace l'autre.
+    if (w.avg == null) totals.win++;
+    totals.saved += d.out_of_order - w.saved;
+    Object.assign(w, { avg: d.avg_speed, count: d.count, saved: d.out_of_order });
+    lastSpeed.set(d.segment, { avg: d.avg_speed, end: d.window_end });
+    flinkWatermark = Math.max(flinkWatermark, d.watermark);
+  } else if (msg.type === "late" || msg.type === "invalid") {
+    const w = windowOf(d.segment, d.window_start);
+    const key = `${msg.type}:${d.car_id}:${d.event_time}`;   // déjà reçu avant la panne ?
+    if (w.seen.has(key)) return;
+    w.seen.add(key);
+    if (msg.type === "late") { w.late.push(d); totals.late++; flinkWatermark = Math.max(flinkWatermark, d.watermark); }
+    else { w.invalid.push(d); if (d.reason in totals) totals[d.reason]++; }
+    events.unshift({ kind: msg.type, ...d });
+    events.length = Math.min(events.length, 30);
+    if (isLive && d.segment === TUNNEL) tunnelFlash = 1;
+  }
+}
+
+async function send(command, path = "control") {
+  try {
+    const r = await fetch(path, {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(command),
+    });
+    $("control_error").textContent = r.ok ? "" : "La commande a été refusée.";
+  } catch (e) {
+    $("control_error").textContent = "Serveur injoignable.";
+  }
+}
+
+// --- carte ---
+const tx = (x) => MARGIN + (x / CITY.bounds.w) * (W - 2 * MARGIN);
+const ty = (y) => MARGIN + (1 - y / CITY.bounds.h) * (H - 2 * MARGIN);
+const speedColor = (id) => {
+  const s = lastSpeed.get(id);
+  if (!s || s.end < maxEventTime - STALE_WINDOWS * CFG.window_ms) return css("--unknown");
+  return s.avg >= 40 ? css("--good") : s.avg >= 25 ? css("--warning") : css("--critical");
+};
+
+function roadDistance(x, y) {
+  let best = Infinity;
+  for (const s of CITY.segments) {
+    const [ax, ay] = CITY.nodes[s.a], [bx, by] = CITY.nodes[s.b];
+    const dx = bx - ax, dy = by - ay;
+    const t = Math.max(0, Math.min(1, ((x - ax) * dx + (y - ay) * dy) / (dx * dx + dy * dy)));
+    best = Math.min(best, Math.hypot(x - ax - t * dx, y - ay - t * dy));
+  }
+  return best;
+}
+function riverX(y) {
+  const p = CITY.river.points;
+  for (let i = 0; i + 1 < p.length; i++) {
+    if (y <= p[i][1] && y >= p[i + 1][1]) {
+      const t = (p[i][1] - y) / (p[i][1] - p[i + 1][1]);
+      return p[i][0] + (p[i + 1][0] - p[i][0]) * t;
+    }
+  }
+  return p[0][0];
+}
+function placeBuildings() {
+  let seed = 42;
+  const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const hill = CITY.hill, list = [];
+  for (let x = 150; x < CITY.bounds.w; x += 330) {
+    for (let y = 150; y < CITY.bounds.h; y += 330) {
+      const w = 130 + rnd() * 130, h = 130 + rnd() * 130, keep = rnd() < 0.8;
+      if (!keep || roadDistance(x, y) < 300) continue;
+      if (Math.abs(x - riverX(y)) < CITY.river.width * 0.8) continue;
+      if (((x - hill.x) / hill.rx) ** 2 + ((y - hill.y) / hill.ry) ** 2 < 1) continue;
+      if (CITY.parks.some(([x0, y0, x1, y1]) => x > x0 && x < x1 && y > y0 && y < y1)) continue;
+      list.push([x, y, w, h]);
+    }
+  }
+  return list;
+}
+
+function drawBackground() {
+  const dpr = window.devicePixelRatio || 1;
+  background = document.createElement("canvas");
+  background.width = W * dpr; background.height = H * dpr;
+  const b = background.getContext("2d");
+  b.setTransform(dpr, 0, 0, dpr, 0, 0);
+  b.fillStyle = css("--land"); b.fillRect(0, 0, W, H);
+
+  b.fillStyle = css("--park");
+  for (const [x0, y0, x1, y1] of CITY.parks) b.fillRect(tx(x0), ty(y1), tx(x1) - tx(x0), ty(y0) - ty(y1));
+
+  const scaleX = (W - 2 * MARGIN) / CITY.bounds.w, scaleY = (H - 2 * MARGIN) / CITY.bounds.h;
+  b.fillStyle = css("--hill");
+  b.beginPath(); b.ellipse(tx(CITY.hill.x), ty(CITY.hill.y), CITY.hill.rx * scaleX, CITY.hill.ry * scaleY, 0, 0, 7); b.fill();
+
+  b.fillStyle = css("--building");
+  for (const [x, y, w, h] of buildings) b.fillRect(tx(x), ty(y), w * scaleX, h * scaleY);
+
+  b.strokeStyle = css("--water"); b.lineWidth = CITY.river.width * scaleX; b.lineJoin = "round";
+  b.beginPath();
+  CITY.river.points.forEach(([x, y], i) => (i ? b.lineTo(tx(x), ty(y)) : b.moveTo(tx(x), ty(y))));
+  b.stroke();
+}
+
+function resize() {
+  const r = canvas.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  W = r.width; H = r.height;
+  canvas.width = W * dpr; canvas.height = H * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  if (CITY) drawBackground();
+}
+
+function strokeSegment(s) {
+  const a = CITY.nodes[s.a], b = CITY.nodes[s.b];
+  ctx.beginPath(); ctx.moveTo(tx(a[0]), ty(a[1])); ctx.lineTo(tx(b[0]), ty(b[1])); ctx.stroke();
+}
+
+function label(text, x, y, align = "center", font = "12px system-ui, sans-serif") {
+  ctx.font = font; ctx.textAlign = align;
+  ctx.lineWidth = 3; ctx.strokeStyle = css("--page"); ctx.strokeText(text, x, y);
+  ctx.fillStyle = css("--text"); ctx.fillText(text, x, y);
+}
+const midpoint = (s) => [
+  (tx(CITY.nodes[s.a][0]) + tx(CITY.nodes[s.b][0])) / 2,
+  (ty(CITY.nodes[s.a][1]) + ty(CITY.nodes[s.b][1])) / 2,
+];
+
+function drawRoads() {
+  ctx.lineCap = "round";
+  ctx.setLineDash([]);
+  for (const s of CITY.segments) {
+    ctx.lineWidth = s.id === selected ? 17 : 14;
+    ctx.strokeStyle = s.id === selected ? css("--text") : "#050505";
+    strokeSegment(s);
+  }
+  ctx.lineCap = "butt";
+  for (const s of CITY.segments) {
+    if (closed.has(s.id)) {
+      ctx.lineWidth = 11; ctx.strokeStyle = css("--unknown"); strokeSegment(s);
+      ctx.setLineDash([10, 10]); ctx.strokeStyle = css("--critical"); strokeSegment(s);
+    } else {
+      ctx.lineWidth = 11; ctx.strokeStyle = speedColor(s.id);
+      ctx.setLineDash(s.tunnel ? [16, 8] : []);
+      strokeSegment(s);
+    }
+    ctx.setLineDash([]);
+  }
+}
+
+function drawLabels() {
+  for (const s of CITY.segments) {
+    if (!closed.has(s.id)) continue;
+    const [x, y] = midpoint(s);
+    label(s.works ? "Travaux" : "Fermé", x, y - 13);
+  }
+  const main = SEGS["w5-w6"], [mx, my] = midpoint(main);
+  label("Rue Principale", mx, my - 13);
+  const [tunnelX, tunnelY] = midpoint(SEGS[TUNNEL]);
+  label("Tunnel", tunnelX + 13, tunnelY + 4, "left");
+  const bold = "600 13px system-ui, sans-serif";
+  label(CITY.districts.w, tx(2500), ty(7800), "center", bold);
+  label(CITY.districts.e, tx(7700), ty(7800), "center", bold);
+}
+
+function drawTunnelMouths() {
+  const tunnel = SEGS[TUNNEL];
+  for (const n of [tunnel.a, tunnel.b]) {
+    const p = CITY.nodes[n];
+    ctx.beginPath(); ctx.arc(tx(p[0]), ty(p[1]), 9, 0, 7);
+    ctx.fillStyle = tunnelFlash > 0 ? `rgba(217,89,38,${0.25 + 0.75 * tunnelFlash})` : css("--axis");
+    ctx.fill();
+  }
+  tunnelFlash = Math.max(0, tunnelFlash - 0.02);
+}
+
+function drawCars() {
+  for (const car of cars.values()) {
+    car.rx += (car.x - car.rx) * 0.2;
+    car.ry += (car.y - car.ry) * 0.2;
+    // Chaque sens roule de son côté de la chaussée.
+    const s = SEGS[car.segment];
+    const dx = tx(CITY.nodes[s.b][0]) - tx(CITY.nodes[s.a][0]);
+    const dy = ty(CITY.nodes[s.b][1]) - ty(CITY.nodes[s.a][1]);
+    const len = Math.hypot(dx, dy) || 1;
+    const px = tx(car.rx) + (-dy / len) * car.side * LANE_OFFSET_PX;
+    const py = ty(car.ry) + (dx / len) * car.side * LANE_OFFSET_PX;
+
+    ctx.beginPath(); ctx.arc(px, py, 3.2, 0, 7);
+    ctx.lineWidth = 1;
+    if (car.offline) { ctx.strokeStyle = css("--text"); ctx.stroke(); continue; }
+    ctx.fillStyle = car.kmh < STOPPED_KMH ? css("--stopped") : css("--text");
+    ctx.fill();
+    ctx.strokeStyle = "#050505"; ctx.stroke();
+  }
+}
+
+function draw(now) {
+  if (now - lastRender > RENDER_EVERY_MS) { lastRender = now; render(); }
+  ctx.clearRect(0, 0, W, H);
+  if (background) ctx.drawImage(background, 0, 0, W, H);
+  drawRoads();
+  drawTunnelMouths();
+  drawCars();
+  drawLabels();
+  requestAnimationFrame(draw);
+}
+
+function nearestSegment(px, py) {
+  let best = null, bestD = 24;
+  for (const s of CITY.segments) {
+    const a = CITY.nodes[s.a], b = CITY.nodes[s.b];
+    const ax = tx(a[0]), ay = ty(a[1]), dx = tx(b[0]) - ax, dy = ty(b[1]) - ay;
+    const t = Math.max(0, Math.min(1, ((px - ax) * dx + (py - ay) * dy) / (dx * dx + dy * dy)));
+    const d = Math.hypot(px - ax - t * dx, py - ay - t * dy);
+    if (d < bestD) { best = s.id; bestD = d; }
+  }
+  return best;
+}
+
+// --- graphe ---
+function actionLabel(a) {
+  if (a.action === "outage") return "Panne de Flink";
+  if (a.action === "restart") return "Flink relancé";
+  if (a.action === "set_cars") return `${a.n} voitures`;
+  return `${a.action === "close" ? "Fermeture" : "Ouverture"} : ${SEGS[a.segment].name}`;
+}
+
+function renderChart() {
+  const width = $("chart").clientWidth;
+  if (!width) return;
+  const height = 356, left = 40, right = 62, top = 12;
+  const speedBottom = 190, carsTop = 206, carsBottom = 276, laneTop = 292, laneBottom = 322, axisY = 342;
+  const win = CFG.window_ms;
+  const t1 = Math.max(maxEventTime, VISIBLE_WINDOWS * win), t0 = t1 - VISIBLE_WINDOWS * win;
+  const x = (t) => left + ((t - t0) / (t1 - t0)) * (width - left - right);
+  const y = (v) => speedBottom - (Math.min(v, 80) / 80) * (speedBottom - top);
+  const street = byStreet.get(selected) || new Map();
+  const windows = [...street.values()].sort((a, b) => a.ws - b.ws);
+  const cap = capacity(selected);
+  const yCars = (v) => carsBottom - (Math.min(v, cap) / cap) * (carsBottom - carsTop);
+  const parts = [];
+  const text = (tx_, ty_, s, anchor = "start", fill = css("--muted")) =>
+    parts.push(`<text x="${tx_}" y="${ty_}" text-anchor="${anchor}" font-size="11" fill="${fill}">${s}</text>`);
+  const hline = (y_, color) => parts.push(`<line x1="${left}" x2="${width - right}" y1="${y_}" y2="${y_}" stroke="${color}"/>`);
+
+  // Fenêtres encore ouvertes : entre le watermark et maintenant.
+  const wm = x(Math.max(flinkWatermark, t0));
+  parts.push(`<rect x="${wm}" y="${top}" width="${x(t1) - wm}" height="${laneBottom - top}" fill="#fff" opacity=".04"/>`);
+
+  for (const v of [0, 20, 40, 60, 80]) {
+    hline(y(v), v ? css("--line") : css("--axis"));
+    text(left - 6, y(v) + 4, v, "end");
+  }
+  hline(carsTop, css("--line")); hline(carsBottom, css("--axis"));
+  text(left - 6, carsBottom + 4, 0, "end");
+  text(width - right + 4, carsTop + 4, `${cap} places`);
+  text(left - 6, (laneTop + laneBottom) / 2 + 4, "rejets", "end");
+  hline(laneBottom, css("--axis"));
+
+  // Limites de fenêtres, une étiquette sur deux pour rester lisible.
+  for (let ws = Math.ceil(t0 / win) * win, i = 0; ws <= t1; ws += win, i++) {
+    parts.push(`<line x1="${x(ws)}" x2="${x(ws)}" y1="${top}" y2="${laneBottom}" stroke="${css("--line")}"/>`);
+    if (i % 2 === 0) text(x(ws), axisY, fmt(ws), "middle");
+  }
+
+  const hoverWs = hoverX == null || hoverX < left || hoverX > width - right ? null
+    : Math.floor((t0 + ((hoverX - left) / (width - left - right)) * (t1 - t0)) / win) * win;
+  if (hoverWs != null) {
+    const hx0 = x(Math.max(hoverWs, t0));
+    parts.push(`<rect x="${hx0}" y="${top}" width="${x(Math.min(hoverWs + win, t1)) - hx0}" height="${laneBottom - top}" fill="#fff" opacity=".07"/>`);
+  }
+
+  // Voitures présentes : la cause, juste sous la vitesse, sur le même axe du temps.
+  const barWidth = Math.max(8, (x(win) - x(0)) * 0.55);
+  for (const w of windows) {
+    if (w.avg == null || w.ws + win / 2 < t0) continue;
+    const bx = x(w.ws + win / 2) - barWidth / 2, by = yCars(carsPresent(w)), r = Math.min(4, carsBottom - by);
+    parts.push(`<path d="M${bx} ${carsBottom}V${by + r}Q${bx} ${by} ${bx + r} ${by}H${bx + barWidth - r}Q${bx + barWidth} ${by} ${bx + barWidth} ${by + r}V${carsBottom}Z" fill="${css("--muted")}"/>`);
+  }
+  text(left + 5, carsTop + 13, "voitures présentes", "start", css("--text-2"));
+
+  // Moyennes publiées : la ligne se coupe quand une fenêtre manque.
+  const published = windows.filter((w) => w.avg != null && w.ws + win / 2 >= t0);
+  let path = "";
+  published.forEach((w, i) => {
+    path += `${i && published[i - 1].ws === w.ws - win ? "L" : "M"}${x(w.ws + win / 2)} ${y(w.avg)}`;
+  });
+  parts.push(`<path d="${path}" fill="none" stroke="${css("--series-published")}" stroke-width="2" stroke-linejoin="round"/>`);
+
+  for (const w of windows) {
+    for (const e of w.late) {
+      if (e.event_time >= t0) parts.push(`<circle cx="${x(e.event_time)}" cy="${y(e.speed)}" r="4" fill="${css("--series-late")}" stroke="${css("--surface")}" stroke-width="2"/>`);
+    }
+  }
+  for (const w of published) {
+    parts.push(`<circle cx="${x(w.ws + win / 2)}" cy="${y(w.avg)}" r="4.5" fill="${css("--series-published")}" stroke="${css("--surface")}" stroke-width="2"/>`);
+  }
+  const last = published[published.length - 1];
+  if (last) text(x(last.ws + win / 2) + 9, y(last.avg) + 4, `${Math.round(last.avg)} km/h`, "start", css("--text"));
+
+  // Les rejets ont leur propre bande : leurs vitesses sortiraient de l'échelle.
+  const laneMid = (laneTop + laneBottom) / 2;
+  for (const w of windows) {
+    for (const e of w.invalid) {
+      if (e.event_time < t0) continue;
+      const cx = x(e.event_time);
+      parts.push(`<path d="M${cx - 4} ${laneMid - 4}L${cx + 4} ${laneMid + 4}M${cx + 4} ${laneMid - 4}L${cx - 4} ${laneMid + 4}" stroke="${css("--series-invalid")}" stroke-width="2" stroke-linecap="round"/>`);
+    }
+  }
+
+  parts.push(`<line x1="${wm}" x2="${wm}" y1="${top}" y2="${laneBottom}" stroke="${css("--text-2")}"/>`);
+  text(wm - 5, speedBottom - 6, "watermark", "end", css("--text-2"));
+
+  // Les actions de l'utilisateur : la cause visible sur le graphe.
+  actions.filter((a) => a.event_time >= t0).forEach((a, i) => {
+    const ax = x(a.event_time), row = i % 3, ly = top + 11 + row * 13;
+    parts.push(`<line x1="${ax}" x2="${ax}" y1="${top}" y2="${laneBottom}" stroke="${css("--text")}" stroke-width="1.5"/>`);
+    const right_ = ax > width - right - 130;
+    text(right_ ? ax - 4 : ax + 4, ly, actionLabel(a), right_ ? "end" : "start", css("--text"));
+  });
+
+  const svg = $("plot");
+  svg.setAttribute("width", width); svg.setAttribute("height", height);
+  svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+  svg.innerHTML = parts.join("");
+  renderTooltip(hoverWs, street, width);
+}
+
+function renderTooltip(ws, street, width) {
+  const tip = $("tooltip");
+  if (ws == null) { tip.style.display = "none"; return; }
+  const w = street.get(ws) || { avg: null, count: 0, saved: 0, late: [], invalid: [] };
+  tip.innerHTML = `<b>Fenêtre ${fmt(ws)}–${fmt(ws + CFG.window_ms)}</b>` + [
+    ["Moyenne publiée", w.avg == null ? "pas encore" : `${w.avg} km/h`],
+    ["Voitures présentes", carsPresent(w).toFixed(1)],
+    ["Sondes retenues", w.count], ["Sauvées", w.saved],
+    ["Retards écartés", w.late.length], ["Points rejetés", w.invalid.length],
+  ].map(([k, v]) => `<div><span>${k}</span><span>${v}</span></div>`).join("");
+  tip.style.display = "block";
+  tip.style.left = Math.max(0, Math.min(hoverX + 14, width - 216)) + "px";
+}
+
+function whyText() {
+  const s = SEGS[selected], cap = capacity(selected);
+  const now = live.get(selected) || { count: 0, stopped: 0 };
+  const tunnelNote = s.tunnel ? " Dans le tunnel, le GPS est coupé : les positions arrivent en retard, ou fausses." : "";
+  if (closed.has(selected)) {
+    const reason = s.works ? "Route fermée pour travaux" : "Route fermée";
+    return `<b>${reason}.</b> Personne ne peut y entrer : tout le trafic doit passer ailleurs.`;
+  }
+  const occupancy = now.count / cap;
+  if (now.stopped >= 3 && (occupancy >= 0.5 || now.stopped >= now.count * 0.5)) {
+    const cause = s.exit_headway_s
+      ? ` Ce pont ne laisse sortir qu'une voiture toutes les ${s.exit_headway_s} s par sens : au-delà de ce débit, la file s'allonge.`
+      : " Le carrefour suivant ne laisse plus passer : la file d'attente remonte jusqu'ici.";
+    return `<b>Bouchon :</b> ${now.count} voitures pour ${cap} places, dont ${now.stopped} à l'arrêt.${cause}${tunnelNote}`;
+  }
+  return `<b>Fluide :</b> ${now.count} voitures pour ${cap} places, personne n'est gêné.${tunnelNote}`;
+}
+
+function renderDetails() {
+  const windows = [...(byStreet.get(selected) || new Map()).values()].sort((a, b) => b.ws - a.ws);
+  const sum = (f) => windows.reduce((a, w) => a + f(w), 0);
+  const last = windows.find((w) => w.avg != null);
+  const isClosed = closed.has(selected);
+
+  $("why").innerHTML = whyText();
+  $("toggle_road").textContent = isClosed ? "Rouvrir ce tronçon" : "Fermer ce tronçon";
+  $("t_pub").textContent = last ? `${Math.round(last.avg)} km/h` : "–";
+  $("t_pub_s").textContent = last ? `fenêtre ${fmt(last.ws)}, ${last.count} sondes` : "en attente d'une fenêtre";
+  $("t_cars").textContent = last ? carsPresent(last).toFixed(1) : "–";
+  $("t_cars_s").textContent = `pour ${capacity(selected)} places`;
+  $("t_saved").textContent = sum((w) => w.saved);
+  $("t_late").textContent = sum((w) => w.late.length);
+  $("t_invalid").textContent = sum((w) => w.invalid.length);
+
+  const noFilter = windows.find((x) => withoutFilter(x) != null);
+  $("t_raw").textContent = noFilter ? `${Math.round(withoutFilter(noFilter))} km/h` : "–";
+  $("t_raw_s").textContent = noFilter ? `publié : ${Math.round(noFilter.avg)} km/h (${fmt(noFilter.ws)})` : "aucun rejet";
+
+  $("rows").innerHTML = windows.slice(0, TABLE_ROWS).map((w) => `<tr>
+    <td>${fmt(w.ws)}–${fmt(w.ws + CFG.window_ms)}</td>
+    <td>${w.avg == null ? "–" : w.avg + " km/h"}</td><td>${w.avg == null ? "–" : carsPresent(w).toFixed(1)}</td>
+    <td>${w.count}</td><td>${w.saved}</td><td>${w.late.length}</td><td>${w.invalid.length}</td>
+    <td>${round(withLate(w))}</td><td>${round(withoutFilter(w))}</td></tr>`).join("");
+
+  for (const k in totals) $("g_" + k).textContent = totals[k];
+  $("log").innerHTML = events.slice(0, 12).map((e) => `<div><time>${fmt(e.event_time)}</time>${SEGS[e.segment] ? SEGS[e.segment].name : e.segment} : ${
+    e.kind === "late" ? "arrivée trop tard" : REASONS[e.reason] || e.reason}</div>`).join("");
+
+  // Reconstruit seulement si la liste change, pour ne pas perdre un clic en cours.
+  const key = [...closed].sort().join();
+  if (key !== closedKey) {
+    closedKey = key;
+    $("closed_list").innerHTML = [...closed].sort().map((id) => `<div class="closed-row">
+      <span>${SEGS[id].name}${SEGS[id].works ? " (travaux)" : ""}</span>
+      <button data-open="${id}">Rouvrir</button></div>`).join("") || `<div class="hint">Aucune</div>`;
+  }
+}
+
+function renderOutage() {
+  let text = "";
+  if (outage.phase === "down") {
+    const left = Math.max(0, Math.ceil((outage.until_ms - Date.now()) / 1000));
+    text = `Flink est en panne : relance dans ${left} s. Kafka garde les messages.`;
+  } else if (outage.phase === "restoring") {
+    text = "Flink redémarre et restaure son dernier checkpoint…";
+  } else if (outage.phase === "failed") {
+    text = "Flink n'a pas repris : voir localhost:8081";
+  } else if (outage.phase === "recovered" && Date.now() - outage.at < RECOVERED_NOTICE_MS) {
+    text = `Reprise depuis le checkpoint n° ${outage.checkpoint}, puis relecture de Kafka.`;
+  }
+  $("outage_badge").textContent = text;
+  $("outage_badge").style.display = text ? "block" : "none";
+  $("outage").disabled = outage.phase === "down" || outage.phase === "restoring";
+}
+
+function render() {
+  if (!CITY) return;
+  renderOutage();
+  $("vclock").textContent = fmt(maxEventTime);
+  $("wm").textContent = fmt(flinkWatermark);
+  renderChart();
+  renderDetails();
+}
+
+function select(id) {
+  selected = id;
+  $("street").value = id;
+  const s = SEGS[id];
+  $("chart_title").textContent = `${s.name} (${s.a}–${s.b}) : les 10 dernières fenêtres`;
+  render();
+}
+
+function connect() {
+  const proto = location.protocol === "https:" ? "wss" : "ws";
+  const ws = new WebSocket(`${proto}://${location.host}/ws`);
+  ws.onmessage = (ev) => handle(JSON.parse(ev.data), true);
+  ws.onclose = () => setTimeout(connect, 1500);
+}
+
+async function init() {
+  CITY = await (await fetch("city.json")).json();
+  try { CFG = await (await fetch("config")).json(); } catch (e) {}
+  SEGS = Object.fromEntries(CITY.segments.map((s) => [s.id, s]));
+  TUNNEL = CITY.segments.find((s) => s.tunnel).id;
+  buildings = placeBuildings();
+  $("cars").max = CFG.max_cars;
+
+  const names = [...new Set(CITY.segments.map((s) => s.name))];
+  $("street").innerHTML = names.map((n) => `<optgroup label="${n}">` +
+    CITY.segments.filter((s) => s.name === n)
+      .map((s) => `<option value="${s.id}">${n} (${s.a}–${s.b})${s.crossing ? ", pont" : ""}</option>`).join("") + "</optgroup>").join("");
+  $("street").addEventListener("change", (e) => { select(e.target.value); e.target.blur(); });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.code !== "Space" || e.repeat || e.target.closest("button, select, input")) return;
+    e.preventDefault();
+    send({ action: paused ? "resume" : "pause" });
+  });
+  // Après un clic souris, Espace doit mettre en pause, pas réactiver le bouton.
+  document.addEventListener("click", (e) => {
+    if (e.detail > 0 && e.target.closest("button")) e.target.blur();
+  });
+
+  $("outage").addEventListener("click", () => send({}, "outage"));
+  $("toggle_road").addEventListener("click", () =>
+    send({ action: closed.has(selected) ? "open" : "close", segment: selected }));
+  $("closed_list").addEventListener("click", (e) => {
+    const id = e.target.dataset.open;
+    if (id) send({ action: "open", segment: id });
+  });
+  $("cars").addEventListener("input", (e) => { dragging = true; $("cars_value").textContent = e.target.value; });
+  $("cars").addEventListener("change", (e) => { dragging = false; send({ action: "set_cars", n: Number(e.target.value) }); e.target.blur(); });
+
+  canvas.addEventListener("click", (e) => {
+    const r = canvas.getBoundingClientRect();
+    const id = nearestSegment(e.clientX - r.left, e.clientY - r.top);
+    if (id) select(id);
+  });
+  $("chart").addEventListener("pointermove", (e) => {
+    hoverX = e.clientX - $("chart").getBoundingClientRect().left;
+    renderChart();
+  });
+  $("chart").addEventListener("pointerleave", () => { hoverX = null; renderChart(); });
+
+  new ResizeObserver(() => { resize(); renderChart(); }).observe($("stage"));
+  resize();
+  select(CITY.segments.find((s) => s.crossing && !s.closed).id);
+  connect();
+  requestAnimationFrame(draw);
+}
+init();
+</script>
+</body>
+</html>

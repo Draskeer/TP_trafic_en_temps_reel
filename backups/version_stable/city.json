@@ -1,0 +1,62 @@
+{
+  "bounds": { "w": 10000, "h": 10000 },
+  "units_per_kmh": 3.0,
+  "car_spacing": 110,
+  "districts": { "w": "Rive Ouest", "e": "Rive Est" },
+  "river": { "width": 700, "points": [[5150, 10000], [4900, 8000], [5100, 6300], [4900, 4000], [5100, 2000], [4900, 0]] },
+  "hill": { "x": 7700, "y": 5000, "rx": 1150, "ry": 1150 },
+  "parks": [[1100, 4050, 2100, 5900], [2950, 1800, 3750, 3100], [6300, 1800, 7400, 3100]],
+  "nodes": {
+    "w1": [700, 8800],  "w2": [2500, 9100],  "w3": [4200, 8700],
+    "w4": [600, 6200],  "w5": [2400, 6500],  "w6": [4100, 6300],
+    "w7": [800, 3700],  "w8": [2600, 3500],  "w9": [4200, 3900],
+    "w10": [700, 1100], "w11": [2500, 1400], "w12": [4100, 1000],
+    "e1": [5900, 8800], "e2": [7700, 9100],  "e3": [9400, 8700],
+    "e4": [5900, 6300], "e5": [7600, 6500],  "e6": [9300, 6200],
+    "e7": [5900, 3900], "e8": [7700, 3500],  "e9": [9400, 3800],
+    "e10": [5900, 1000], "e11": [7800, 1400], "e12": [9300, 1100]
+  },
+  "segments": [
+    { "id": "w4-w5",  "a": "w4", "b": "w5", "name": "Rue Principale", "speed": 50 },
+    { "id": "w5-w6",  "a": "w5", "b": "w6", "name": "Rue Principale", "speed": 50 },
+    { "id": "w6-e4",  "a": "w6", "b": "e4", "name": "Rue Principale", "speed": 50, "crossing": true, "exit_headway_s": 4 },
+    { "id": "e4-e5",  "a": "e4", "b": "e5", "name": "Rue Principale", "speed": 50 },
+    { "id": "e5-e6",  "a": "e5", "b": "e6", "name": "Rue Principale", "speed": 50 },
+
+    { "id": "w9-e7",  "a": "w9", "b": "e7", "name": "Pont Sud", "speed": 50, "crossing": true, "exit_headway_s": 4, "closed": true, "works": true },
+
+    { "id": "w1-w2",  "a": "w1", "b": "w2", "name": "Boulevard Nord", "speed": 55 },
+    { "id": "w2-w3",  "a": "w2", "b": "w3", "name": "Boulevard Nord", "speed": 55 },
+    { "id": "e1-e2",  "a": "e1", "b": "e2", "name": "Boulevard Nord", "speed": 55 },
+    { "id": "e2-e3",  "a": "e2", "b": "e3", "name": "Boulevard Nord", "speed": 55 },
+
+    { "id": "w7-w8",  "a": "w7", "b": "w8", "name": "Rue des Écoles", "speed": 45 },
+    { "id": "w8-w9",  "a": "w8", "b": "w9", "name": "Rue des Écoles", "speed": 45 },
+    { "id": "e7-e8",  "a": "e7", "b": "e8", "name": "Rue du Marché", "speed": 45 },
+    { "id": "e8-e9",  "a": "e8", "b": "e9", "name": "Rue du Marché", "speed": 45 },
+
+    { "id": "w10-w11", "a": "w10", "b": "w11", "name": "Allée du Parc", "speed": 45 },
+    { "id": "w11-w12", "a": "w11", "b": "w12", "name": "Allée du Parc", "speed": 45 },
+    { "id": "e10-e11", "a": "e10", "b": "e11", "name": "Rue du Port", "speed": 45 },
+    { "id": "e11-e12", "a": "e11", "b": "e12", "name": "Rue du Port", "speed": 45 },
+
+    { "id": "w1-w4",  "a": "w1", "b": "w4", "name": "Avenue de l'Ouest", "speed": 45 },
+    { "id": "w4-w7",  "a": "w4", "b": "w7", "name": "Avenue de l'Ouest", "speed": 45 },
+    { "id": "w7-w10", "a": "w7", "b": "w10", "name": "Avenue de l'Ouest", "speed": 45 },
+    { "id": "w2-w5",  "a": "w2", "b": "w5", "name": "Rue de la Mairie", "speed": 45 },
+    { "id": "w5-w8",  "a": "w5", "b": "w8", "name": "Rue de la Mairie", "speed": 45 },
+    { "id": "w3-w6",  "a": "w3", "b": "w6", "name": "Quai Ouest", "speed": 45 },
+    { "id": "w6-w9",  "a": "w6", "b": "w9", "name": "Quai Ouest", "speed": 45 },
+    { "id": "w9-w12", "a": "w9", "b": "w12", "name": "Quai Ouest", "speed": 45 },
+
+    { "id": "e1-e4",  "a": "e1", "b": "e4", "name": "Quai Est", "speed": 45 },
+    { "id": "e4-e7",  "a": "e4", "b": "e7", "name": "Quai Est", "speed": 45 },
+    { "id": "e7-e10", "a": "e7", "b": "e10", "name": "Quai Est", "speed": 45 },
+    { "id": "e2-e5",  "a": "e2", "b": "e5", "name": "Rue du Lycée", "speed": 45 },
+    { "id": "e5-e8",  "a": "e5", "b": "e8", "name": "Tunnel de la Colline", "speed": 60, "tunnel": true },
+    { "id": "e8-e11", "a": "e8", "b": "e11", "name": "Rue du Lycée", "speed": 45 },
+    { "id": "e3-e6",  "a": "e3", "b": "e6", "name": "Avenue de l'Est", "speed": 45 },
+    { "id": "e6-e9",  "a": "e6", "b": "e9", "name": "Avenue de l'Est", "speed": 45 },
+    { "id": "e9-e12", "a": "e9", "b": "e12", "name": "Avenue de l'Est", "speed": 45 }
+  ]
+}
